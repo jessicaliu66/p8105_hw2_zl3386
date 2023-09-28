@@ -7,6 +7,7 @@ output: github_document
 
 ```{r, message = FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 
@@ -135,5 +136,38 @@ Write a short paragraph about these datasets. Explain briefly what each dataset 
 * Dataset `snp_df` contains 3 columns which indicate the date (`year` and `month`) and the closing values of the S&P stock index on the associated date (`close`).
 
 * Dataset `unemployment_df` contains 3 columns which indicate the date (`year` and `month`) and the corresponding percentage of unemployment (`unemployment_rate`).
+
+
+## Problem 2
+
+This problem uses the _Mr. Trash Wheel_ dataset.
+
+Read and clean the _Mr. Trash Wheel_ sheet:
+
+* specify the sheet in the Excel file and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in `read_excel`
+
+* use reasonable variable names
+
+* omit rows that do not include dumpster-specific data
+
+```{r}
+trash_wheel_df =
+  read_excel(
+    "data/Trash Wheel Collection Data.xlsx",
+    sheet = 1,
+    range = "A2:N586"
+  ) |>
+  janitor::clean_names()
+```
+
+The data include a column for the (approximate) number of homes powered. This calculation is described in the `Homes powered note`, but not applied to every row in the dataset. Update the data to include a new `homes_powered` variable based on this calculation.
+
+```{r homes_powered}
+trash_wheel_df =
+  mutate(
+    trash_wheel_df,
+    homes_powered = weight_tons * 500 / 30
+  )
+```
 
 
