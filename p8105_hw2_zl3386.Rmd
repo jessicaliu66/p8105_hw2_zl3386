@@ -229,3 +229,76 @@ What was the total number of cigarette butts collected by Gwynnda in July of 202
 
 
 ## Problem 3
+
+This problem uses data collected in an observational study to understand the trajectory of Alzheimer’s disease (AD) biomarkers. 
+
+__Import__, __clean__, and __tidy__ the dataset of _baseline demographics_. Ensure that __sex__ and __APOE4 carrier status__ are appropriate encoded (i.e. not numeric), and __remove__ any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). 
+
+```{r baseline dataset, warning = FALSE}
+baseline_df =
+  # import data, skip the notes, assign column types
+  read_csv("data/data_mci/MCI_baseline.csv", skip = 1, col_types = "iniiin") |> 
+  janitor::clean_names() |>
+  # only keep the ones with no MCI at baseline
+  filter(age_at_onset > current_age | is.na(age_at_onset)) |>
+  rename(baseline_age = current_age) |>
+  mutate( # properly encode sex and APOE4
+    sex = case_match(
+      sex,
+      1 ~ "male",
+      0 ~ "female"
+    ),
+    apoe4 = case_match(
+      apoe4,
+      1 ~ "carry",
+      0 ~ "none"
+    )
+  )
+  
+```
+
+Discuss important steps in the import process and relevant features of the dataset.
+
+* Important steps in the import process including skipping the notes in the first row, assigning column types, removing participants who already had MCI at baseline using `filter()` and encoding `sex` and `apoe4` to meaningful values.
+
+* `r nrow(baseline_df)` participants (who meet the stated inclusion criteria) were recruited, and of these `r nrow(filter(baseline_df, age_at_onset > 0))` develop MCI.
+
+* The average baseline age is `r mean(pull(baseline_df, baseline_age))`.
+
+* The proportion of APOE4 carriers in the women in the study is `r 100 * nrow(filter(baseline_df, sex == "female", apoe4 == "carry")) / nrow(filter(baseline_df, sex == "female"))`%.
+
+Similarly, import, clean, and tidy the dataset of _longitudinally observed biomarker values_; comment on the steps on the import process and the features of the dataset.
+
+```{r biomarker dataset, warning = FALSE}
+amyloid_df =
+  # import data, skip the notes, assign column types
+  read_csv("data/data_mci/mci_amyloid.csv", skip = 1, col_types = "innnnn") |> 
+  janitor::clean_names() |>
+  rename(id = study_id)
+```
+
+Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings.
+
+```{r check unique participants}
+id_b = pull(baseline_df, id)
+id_a = pull(amyloid_df, id)
+
+id_b_only = id_b[!(id_b %in% id_a)] #participants that only appear in baseline
+id_a_only = id_a[!(id_a %in% id_b)] #participants that only appear in amyloid
+```
+
+* Participants `r id_b_only` only appear in the baseline datasets, and participants `r id_a_only` only appear in the amyloid datasets.
+
+Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.
+
+```{r combine and export}
+ad_df = 
+  inner_join(baseline_df, amyloid_df, by = join_by(id))
+
+write_csv(ad_df, "data/data_mci/AD_observations.csv")
+# export data to the file "data/data_mci/AD_observations.csv"
+```
+
+* The resulting dataset `ad_df` contains the data of `r nrow(ad_df)` participants who appear in both datasets, including their basic demographic information (`id`,  `baseline_age`, `sex`, `education` (years) ), APOE4 carrier status (`apoe4`), `age_at_onset` of MCI and amyloid β 42/40 ratio over time (`baseline`,  `time_2`, `time_`4, `time_6`, `time_8`).
+
+* The results has been exported as `AD_observations.csv` to the data directory `data/data_mci/`.
