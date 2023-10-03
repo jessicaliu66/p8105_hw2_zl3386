@@ -154,7 +154,7 @@ Read and clean the _Mr. Trash Wheel_ sheet:
 ```{r mr trash wheel}
 mr_df =
   read_excel(
-    "data/Trash Wheel Collection Data.xlsx",
+    "data/202309 Trash Wheel Collection Data.xlsx",
     sheet = 1,
     range = "A2:N586"
   ) |>
@@ -179,7 +179,7 @@ Use a similar process to import, clean, and organize the data for _Professor Tra
 ```{r professor and Gwynnda trash wheel, message = FALSE}
 prof_df =
   read_excel(
-    "data/Trash Wheel Collection Data.xlsx",
+    "data/202309 Trash Wheel Collection Data.xlsx",
     sheet = "Professor Trash Wheel",
     range = "A2:M108"
   ) |>
@@ -191,7 +191,7 @@ prof_df =
 
 gwyn_df =
   read_excel(
-    "data/Trash Wheel Collection Data.xlsx",
+    "data/202309 Trash Wheel Collection Data.xlsx",
     sheet = 4,
     range = "A2:L157"
   ) |>
